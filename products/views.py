@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -8,6 +8,7 @@ from .serializers import Product_serializer
 class ProductListAPIView(generics.ListCreateAPIView):
     queryset = Product_model.objects.all()
     serializer_class = Product_serializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self,serializer):
         name = serializer.validated_data.get('name')
