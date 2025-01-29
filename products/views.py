@@ -4,12 +4,12 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from .models import Product_model
 from .serializers import Product_serializer
-from .permissions import IsStaffEditorPermisison
+from main_api.mixins import StaffEditorPermissionMixin
 
-class ProductListAPIView(generics.ListCreateAPIView):
+class ProductListAPIView(generics.ListCreateAPIView,
+                         StaffEditorPermissionMixin):
     queryset = Product_model.objects.all()
     serializer_class = Product_serializer
-    permission_classes = [permissions.IsAdminUser,IsStaffEditorPermisison]
 
     def perform_create(self,serializer):
         name = serializer.validated_data.get('name')
