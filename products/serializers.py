@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Product_model
 from rest_framework.reverse import reverse
+from .validators import validate_name
 
 class Product_serializer(serializers.ModelSerializer):
     my_discount = serializers.SerializerMethodField(read_only =  True)
@@ -9,6 +10,7 @@ class Product_serializer(serializers.ModelSerializer):
         view_name= 'product-detail',
         lookup_field = 'pk'
     )
+    name = serializers.CharField(validators = [validate_name])
     class Meta:
         model = Product_model
         fields = [
@@ -21,6 +23,25 @@ class Product_serializer(serializers.ModelSerializer):
             'sale_price',
             'my_discount',
         ]
+
+    def validate_name(self, value):
+        request= self.context.get('request')
+        user = request.user
+        qs = Product_model.objects.filter(user=user,name__iexact = value)
+        if qs.exists():
+            raise serializers.ValidationError(f"{value} is already a product name")
+        return value
+
+#     def create(self, validated_data):
+#          email = validated_data.pop('email')
+#         obj= super().create(validated_data)
+#         print(email,obj)
+#         return obj
+
+#     def update(self,instance, validated_data):
+#         instance.title = validated_data.get('title')
+#         return instance
+
 
     def get_edit_url(self,obj):
         request= self.context.get('request')

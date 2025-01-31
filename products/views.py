@@ -33,7 +33,6 @@ class ProductCreateAPIView(generics.CreateAPIView):
             
         serializer.save(content = content)
 
-
 class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset = Product_model.objects.all()
     serializer_class = Product_serializer
