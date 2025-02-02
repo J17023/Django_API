@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Product_model
 from rest_framework.reverse import reverse
-from .validators import validate_name
+from . import validators
 
 class Product_serializer(serializers.ModelSerializer):
     my_discount = serializers.SerializerMethodField(read_only =  True)
@@ -10,7 +10,11 @@ class Product_serializer(serializers.ModelSerializer):
         view_name= 'product-detail',
         lookup_field = 'pk'
     )
-    name = serializers.CharField(validators = [validate_name])
+
+    name = serializers.CharField(validators = [validators.validate_name,
+                                               validators.unique_product_title,
+                                               validators.validate_name_no_hello])
+    title = serializers.CharField(source = 'name', read_only = True)
     class Meta:
         model = Product_model
         fields = [
@@ -18,6 +22,7 @@ class Product_serializer(serializers.ModelSerializer):
             'url',
             'edit_url',
             'name',
+            'title',
             'content',
             'price',
             'sale_price',
