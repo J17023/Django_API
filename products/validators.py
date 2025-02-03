@@ -13,4 +13,4 @@ def validate_name_no_hello(value):
         raise serializers.ValidationError(f'Hello is not allowed')
     return value
 
-unique_product_title = UniqueValidator(queryset= Product_model.objects.all())
+unique_product_title = UniqueValidator(queryset= Product_model.objects.all(), lookup='iexact')
