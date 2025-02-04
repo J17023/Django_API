@@ -1,9 +1,22 @@
 from rest_framework import serializers
 from .models import Product_model
 from rest_framework.reverse import reverse
+from main_api.serializers import User_public_serializer
 from . import validators
 
+class ProductInlineSerializer(serializers.Serializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name = 'product-detail',
+        lookup_field = 'pk',
+        read_only = True
+    )
+    name = serializers.CharField(read_only = True)
+
 class Product_serializer(serializers.ModelSerializer):
+    owner = User_public_serializer(source = "user", read_only =True)
+    related_products =  ProductInlineSerializer(source = 'user.product.set.all',
+                                                read_only = True)
+    my_user_data = serializers.SerializerMethodField(read_only =True)
     my_discount = serializers.SerializerMethodField(read_only =  True)
     edit_url = serializers.SerializerMethodField(read_only= True)
     url = serializers.HyperlinkedIdentityField(
@@ -15,12 +28,15 @@ class Product_serializer(serializers.ModelSerializer):
                                                validators.unique_product_title,
                                                validators.validate_name_no_hello])
     title = serializers.CharField(source = 'name', read_only = True)
+    email = serializers.EmailField(source = "user.email", read_only =True)
     class Meta:
         model = Product_model
         fields = [
-            #'user',
+            'owner',
             'pk',
             'url',
+            'email',
+            'related_products',
             'edit_url',
             'name',
             'title',
@@ -28,8 +44,14 @@ class Product_serializer(serializers.ModelSerializer):
             'price',
             'sale_price',
             'my_discount',
+            'my_user_data',
         ]
 
+    def get_my_user_data(self,obj):
+        return {
+            "username": obj.user.username
+        }
+    
     def validate_name(self, value):
         request= self.context.get('request')
         user = request.user
@@ -60,3 +82,4 @@ class Product_serializer(serializers.ModelSerializer):
             return obj.get_discount()
         except:
             return None
+        

@@ -18,7 +18,7 @@ from django.urls import path, include
 from .views import  product_alt_view, ProductUpdateAPIView,ProductDeleteAPIView,ProductListAPIView,ProductDetailAPIView#, ProductCreateAPIView,
 
 urlpatterns = [
-    path('<int:pk>', ProductDetailAPIView.as_view(),name='product-detail' ),
+    path('<int:pk>', ProductDetailAPIView.as_view(),name='product-detail'),
     path ('create/', product_alt_view), 
     path ('list/',  ProductListAPIView.as_view(), name='product-list'), 
     path ('update/<int:pk>', ProductUpdateAPIView.as_view(), name ="edit_url"), 
