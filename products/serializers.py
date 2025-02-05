@@ -14,10 +14,6 @@ class ProductInlineSerializer(serializers.Serializer):
 
 class Product_serializer(serializers.ModelSerializer):
     owner = User_public_serializer(source = "user", read_only =True)
-    related_products =  ProductInlineSerializer(source = 'user.product.set.all',
-                                                read_only = True)
-    my_user_data = serializers.SerializerMethodField(read_only =True)
-    my_discount = serializers.SerializerMethodField(read_only =  True)
     edit_url = serializers.SerializerMethodField(read_only= True)
     url = serializers.HyperlinkedIdentityField(
         view_name= 'product-detail',
@@ -27,24 +23,17 @@ class Product_serializer(serializers.ModelSerializer):
     name = serializers.CharField(validators = [validators.validate_name,
                                                validators.unique_product_title,
                                                validators.validate_name_no_hello])
-    title = serializers.CharField(source = 'name', read_only = True)
-    email = serializers.EmailField(source = "user.email", read_only =True)
     class Meta:
         model = Product_model
         fields = [
             'owner',
             'pk',
             'url',
-            'email',
-            'related_products',
             'edit_url',
             'name',
-            'title',
             'content',
             'price',
             'sale_price',
-            'my_discount',
-            'my_user_data',
         ]
 
     def get_my_user_data(self,obj):
@@ -60,26 +49,8 @@ class Product_serializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"{value} is already a product name")
         return value
 
-#     def create(self, validated_data):
-#          email = validated_data.pop('email')
-#         obj= super().create(validated_data)
-#         print(email,obj)
-#         return obj
-
-#     def update(self,instance, validated_data):
-#         instance.title = validated_data.get('title')
-#         return instance
-
-
     def get_edit_url(self,obj):
         request= self.context.get('request')
         if request is None:
             return None
         return reverse("edit_url", kwargs={"pk":obj.pk}, request=request)
-    
-    def get_my_discount(self,obj):
-        try:
-            return obj.get_discount()
-        except:
-            return None
-        
