@@ -1,8 +1,9 @@
+import random
 from django.db import models
 from django.conf import settings
 from django.db.models import Q
 
-
+TAGS_MODEL_VALUES =['electronics', 'cars','boats', 'movies', 'cameras']
     
 # Create your models here.
 User = settings.AUTH_USER_MODEL
@@ -31,11 +32,17 @@ class Product_model(models.Model):
     user = models.ForeignKey(User,null= True, default=1, on_delete=models.SET_NULL, related_name= 'products')
     name = models.CharField( max_length=50)
     content = models.TextField(blank= True, null= True)
-    price = models.DecimalField( max_digits=5,decimal_places=2, default=99.9)
+    price = models.FloatField(default=99.9)
     public = models.BooleanField(default=True)
 
     objects = ProductManager()
 
+    def is_public(self):
+        return self.public
+    
+    def get_tags_list(self):
+        return [random.choice(TAGS_MODEL_VALUES)]
+    
     @property
     def sale_price(self):
         return "%.2f" %(float(self.price)*0.8)
